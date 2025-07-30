@@ -115,5 +115,25 @@ module.exports = {
       WHERE id = ?
     `);
     return stmt.run(hashedPassword, id);
+  },
+
+  suspendUser: (id) => {
+    const stmt = db.prepare(`
+      UPDATE users SET
+        suspended = 1,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    return stmt.run(id);
+  },
+
+  unsuspendUser: (id) => {
+    const stmt = db.prepare(`
+      UPDATE users SET
+        suspended = 0,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    return stmt.run(id);
   }
 };
