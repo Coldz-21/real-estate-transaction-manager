@@ -3,6 +3,7 @@ const excelLogger = require('../utils/excelLogger');
 const csvExport = require('../utils/csvExport');
 const pdfGenerator = require('../utils/pdfGenerator');
 const imageUtils = require('../utils/imageUtils');
+const emailNotificationService = require('../services/emailNotificationService');
 
 const loopController = {
   createLoop: async (req, res, next) => {
