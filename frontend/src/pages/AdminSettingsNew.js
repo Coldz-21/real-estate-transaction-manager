@@ -244,6 +244,46 @@ const UserManagement = ({ addNotification }) => {
     }
   };
 
+  const openPasswordModal = (user) => {
+    setPasswordModal({ show: true, user });
+    setPasswordData({ newPassword: '', confirmPassword: '' });
+  };
+
+  const closePasswordModal = () => {
+    setPasswordModal({ show: false, user: null });
+    setPasswordData({ newPassword: '', confirmPassword: '' });
+  };
+
+  const changeUserPassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      addNotification('Passwords do not match', 'error');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      addNotification('Password must be at least 6 characters long', 'error');
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      const response = await adminAPI.changePassword({
+        userId: passwordModal.user.id,
+        newPassword: passwordData.newPassword
+      });
+
+      if (response.data.success) {
+        addNotification(`Password changed successfully for ${passwordModal.user.name}`, 'success');
+        closePasswordModal();
+      }
+    } catch (error) {
+      const errorMessage = apiUtils.getErrorMessage(error);
+      addNotification(errorMessage, 'error');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
