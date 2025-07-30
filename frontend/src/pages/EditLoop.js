@@ -11,29 +11,29 @@ const EditLoop = ({ user, addNotification }) => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  useEffect(() => {
-    fetchLoop();
-  }, [id]);
-
-  const fetchLoop = async () => {
+  const fetchLoop = useCallback(async () => {
     try {
       setFetchLoading(true);
       const response = await loopAPI.getLoop(id);
-      
+
       if (response.data.success) {
         setLoop(response.data.loop);
       }
     } catch (error) {
       const errorMessage = apiUtils.getErrorMessage(error);
       addNotification(errorMessage, 'error');
-      
+
       // Redirect back if loop not found or access denied
       const dashboardPath = user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/agent';
       navigate(dashboardPath);
     } finally {
       setFetchLoading(false);
     }
-  };
+  }, [id, addNotification, user?.role, navigate]);
+
+  useEffect(() => {
+    fetchLoop();
+  }, [fetchLoop]);
 
   const handleSubmit = async (formData) => {
     setLoading(true);
