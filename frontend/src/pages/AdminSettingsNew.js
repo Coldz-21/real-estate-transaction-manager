@@ -379,6 +379,11 @@ const UserManagement = ({ addNotification }) => {
                           {user.role}
                         </span>
                       </td>
+                      <td>
+                        <span className={`status-badge ${user.suspended ? 'status-cancelled' : 'status-active'}`}>
+                          {user.suspended ? 'Suspended' : 'Active'}
+                        </span>
+                      </td>
                       <td>{new Date(user.created_at).toLocaleDateString()}</td>
                       <td>
                         <div className="text-sm">
