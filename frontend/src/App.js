@@ -69,22 +69,36 @@ const App = () => {
 
   if (!isAuthenticated) {
     return (
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route
-              path="/login"
-              element={
-                <Login
-                  onLogin={handleLogin}
-                  addNotification={addNotification}
-                />
-              }
+      <>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  <Login
+                    onLogin={handleLogin}
+                    addNotification={addNotification}
+                  />
+                }
+              />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </div>
+        </Router>
+
+        {/* Global Notifications */}
+        <div className="fixed top-4 right-4 z-50 space-y-2">
+          {notifications.map(notification => (
+            <NotificationAlert
+              key={notification.id}
+              message={notification.message}
+              type={notification.type}
+              onClose={() => removeNotification(notification.id)}
             />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
+          ))}
         </div>
-      </Router>
+      </>
     );
   }
 
