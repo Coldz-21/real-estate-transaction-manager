@@ -2,6 +2,7 @@ const loopModel = require('../models/loopModel');
 const excelLogger = require('../utils/excelLogger');
 const csvExport = require('../utils/csvExport');
 const pdfGenerator = require('../utils/pdfGenerator');
+const imageUtils = require('../utils/imageUtils');
 
 const loopController = {
   createLoop: async (req, res, next) => {
@@ -10,6 +11,11 @@ const loopController = {
         ...req.body,
         creator_id: req.user.id
       };
+
+      // Process uploaded images
+      if (req.files && req.files.length > 0) {
+        loopData.images = imageUtils.processUploadedImages(req.files);
+      }
 
       // Validate required fields
       if (!loopData.type || !loopData.property_address) {
@@ -88,9 +94,15 @@ const loopController = {
         });
       }
 
+      // Parse images for frontend
+      const loopWithImages = {
+        ...loop,
+        imageList: imageUtils.parseImages(loop.images)
+      };
+
       res.json({
         success: true,
-        loop
+        loop: loopWithImages
       });
     } catch (error) {
       next(error);
@@ -117,7 +129,30 @@ const loopController = {
         });
       }
 
-      const result = loopModel.updateLoop(id, req.body);
+      const updateData = { ...req.body };
+
+      // Handle image updates
+      if (req.files && req.files.length > 0) {
+        // If replacing images, delete old ones
+        if (loop.images && req.body.replaceImages === 'true') {
+          await imageUtils.deleteImages(loop.images);
+        }
+
+        // Process new images
+        const newImages = imageUtils.processUploadedImages(req.files);
+
+        if (req.body.replaceImages === 'true') {
+          updateData.images = newImages;
+        } else {
+          // Append to existing images
+          const existingImages = imageUtils.parseImages(loop.images);
+          const newImagesArray = imageUtils.parseImages(newImages);
+          const combinedImages = [...existingImages, ...newImagesArray];
+          updateData.images = JSON.stringify(combinedImages);
+        }
+      }
+
+      const result = loopModel.updateLoop(id, updateData);
 
       if (result.changes === 0) {
         return res.status(404).json({
@@ -161,6 +196,11 @@ const loopController = {
           success: false,
           error: 'Only admins can delete loops'
         });
+      }
+
+      // Delete associated images
+      if (loop.images) {
+        await imageUtils.deleteImages(loop.images);
       }
 
       const result = loopModel.deleteLoop(id);
