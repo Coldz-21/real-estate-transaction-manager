@@ -335,6 +335,15 @@ const UserManagement = ({ addNotification }) => {
                           <div>Last: {activity?.last_activity ? new Date(activity.last_activity).toLocaleDateString() : 'Never'}</div>
                         </div>
                       </td>
+                      <td>
+                        <button
+                          onClick={() => openPasswordModal(user)}
+                          className="btn btn-sm btn-secondary"
+                          title={`Change password for ${user.name}`}
+                        >
+                          🔐 Change Password
+                        </button>
+                      </td>
                     </tr>
                   );
                 })}
