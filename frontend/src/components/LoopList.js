@@ -20,16 +20,24 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
     try {
       setLoading(true);
       const params = {
-        ...filters,
-        search: searchTerm,
-        status: statusFilter,
-        type: typeFilter,
-        sort: sortBy,
-        order: sortOrder
+        search: searchTerm || '',
+        status: statusFilter || '',
+        type: typeFilter || '',
+        sort: sortBy || 'created_at',
+        order: sortOrder || 'desc'
       };
 
+      // Only add filters if they exist and are not empty
+      if (filters && typeof filters === 'object') {
+        Object.keys(filters).forEach(key => {
+          if (filters[key] !== undefined && filters[key] !== '') {
+            params[key] = filters[key];
+          }
+        });
+      }
+
       const response = await loopAPI.getLoops(params);
-      
+
       if (response.data.success) {
         setLoops(response.data.loops);
       }
