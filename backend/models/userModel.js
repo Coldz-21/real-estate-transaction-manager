@@ -11,6 +11,7 @@ db.prepare(`
     role TEXT DEFAULT 'agent',
     notify_on_new_loops BOOLEAN DEFAULT 1,
     notify_on_updated_loops BOOLEAN DEFAULT 1,
+    suspended BOOLEAN DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
