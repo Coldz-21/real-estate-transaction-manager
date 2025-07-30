@@ -43,8 +43,8 @@ const App = () => {
   };
 
   const addNotification = (message, type = 'info') => {
-    const id = `notification-${Date.now()}-${notificationCounter}`;
-    setNotificationCounter(prev => prev + 1);
+    notificationCounter.current += 1;
+    const id = `notification-${Date.now()}-${notificationCounter.current}`;
     const notification = { id, message, type };
     setNotifications(prev => [...prev, notification]);
 
