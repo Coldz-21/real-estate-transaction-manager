@@ -16,6 +16,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Handle FormData content type
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => {
@@ -78,7 +84,10 @@ export const loopAPI = {
         'Accept': 'application/pdf'
       }
     });
-  }
+  },
+
+  // Image operations
+  deleteLoopImage: (loopId, filename) => api.delete(`/loops/${loopId}/images/${filename}`)
 };
 
 // Utility functions
