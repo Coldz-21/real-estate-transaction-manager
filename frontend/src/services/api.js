@@ -90,6 +90,12 @@ export const loopAPI = {
   deleteLoopImage: (loopId, filename) => api.delete(`/loops/${loopId}/images/${filename}`)
 };
 
+// Settings API calls
+export const settingsAPI = {
+  getSettings: () => api.get('/settings'),
+  updateNotificationPreferences: (preferences) => api.put('/settings/notifications', preferences)
+};
+
 // Utility functions
 export const apiUtils = {
   // Handle file download
