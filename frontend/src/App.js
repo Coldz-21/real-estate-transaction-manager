@@ -14,6 +14,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
+  const [notificationCounter, setNotificationCounter] = useState(0);
 
   useEffect(() => {
     // Check authentication status on app load
