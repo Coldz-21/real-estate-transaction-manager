@@ -64,10 +64,16 @@ const loopController = {
 
       const loops = loopModel.getAllLoops(filters);
 
+      // Parse images for all loops
+      const loopsWithImages = loops.map(loop => ({
+        ...loop,
+        imageList: imageUtils.parseImages(loop.images)
+      }));
+
       res.json({
         success: true,
-        loops,
-        count: loops.length
+        loops: loopsWithImages,
+        count: loopsWithImages.length
       });
     } catch (error) {
       next(error);
@@ -353,6 +359,83 @@ const loopController = {
           ...stats,
           closing_soon: closingLoops.length
         }
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  serveImage: (req, res, next) => {
+    try {
+      const { filename } = req.params;
+      const imagePath = imageUtils.getImagePath(filename);
+
+      if (!imageUtils.imageExists(filename)) {
+        return res.status(404).json({
+          success: false,
+          error: 'Image not found'
+        });
+      }
+
+      res.sendFile(imagePath);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  deleteLoopImage: async (req, res, next) => {
+    try {
+      const { id, filename } = req.params;
+      const loop = loopModel.getLoopById(id);
+
+      if (!loop) {
+        return res.status(404).json({
+          success: false,
+          error: 'Loop not found'
+        });
+      }
+
+      // Check permissions
+      if (req.user.role !== 'admin' && loop.creator_id !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'Access denied'
+        });
+      }
+
+      if (!loop.images) {
+        return res.status(404).json({
+          success: false,
+          error: 'No images found for this loop'
+        });
+      }
+
+      const images = imageUtils.parseImages(loop.images);
+      const imageToDelete = images.find(img => img.filename === filename);
+
+      if (!imageToDelete) {
+        return res.status(404).json({
+          success: false,
+          error: 'Image not found'
+        });
+      }
+
+      // Remove image from filesystem
+      const imagePath = imageUtils.getImagePath(filename);
+      await imageUtils.deleteImages(JSON.stringify([imageToDelete]));
+
+      // Update database
+      const updatedImages = images.filter(img => img.filename !== filename);
+      const updateData = {
+        ...loop,
+        images: updatedImages.length > 0 ? JSON.stringify(updatedImages) : null
+      };
+
+      loopModel.updateLoop(id, updateData);
+
+      res.json({
+        success: true,
+        message: 'Image deleted successfully'
       });
     } catch (error) {
       next(error);
