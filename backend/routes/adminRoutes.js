@@ -17,6 +17,10 @@ router.get('/activity-logs', adminController.getActivityLogs);
 // Password Management
 router.put('/change-password', adminController.changeUserPassword);
 
+// User Suspension Management
+router.put('/users/:userId/suspend', adminController.suspendUser);
+router.put('/users/:userId/unsuspend', adminController.unsuspendUser);
+
 // Export Functions
 router.get('/export/activity-logs', adminController.exportActivityLogs);
 router.get('/export/users', adminController.exportUserList);
