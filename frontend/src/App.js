@@ -67,6 +67,19 @@ const App = () => {
     );
   }
 
+  const NotificationContainer = () => (
+    <div className="fixed top-4 right-4 z-50 space-y-2">
+      {notifications.map(notification => (
+        <NotificationAlert
+          key={notification.id}
+          message={notification.message}
+          type={notification.type}
+          onClose={() => removeNotification(notification.id)}
+        />
+      ))}
+    </div>
+  );
+
   if (!isAuthenticated) {
     return (
       <>
@@ -86,18 +99,7 @@ const App = () => {
             </Routes>
           </div>
         </Router>
-
-        {/* Global Notifications */}
-        <div className="fixed top-4 right-4 z-50 space-y-2">
-          {notifications.map(notification => (
-            <NotificationAlert
-              key={notification.id}
-              message={notification.message}
-              type={notification.type}
-              onClose={() => removeNotification(notification.id)}
-            />
-          ))}
-        </div>
+        <NotificationContainer />
       </>
     );
   }
