@@ -39,6 +39,15 @@ const loopController = {
         timestamp: new Date().toISOString()
       });
 
+      // Log loop creation activity
+      ActivityLogger.log(
+        req.user.id,
+        ActivityLogger.ACTION_TYPES.LOOP_CREATED,
+        `Created new ${loopData.type} loop for ${loopData.property_address}`,
+        req,
+        { loopId: result.lastInsertRowid, type: loopData.type, property_address: loopData.property_address }
+      );
+
       // Send email notification to admins
       try {
         await emailNotificationService.sendNewLoopNotification(createdLoop, req.user);
