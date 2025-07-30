@@ -13,31 +13,31 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
   const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
-    fetchLoops();
-  }, [fetchLoops]);
+    const fetchLoops = async () => {
+      try {
+        setLoading(true);
+        const params = {
+          search: searchTerm || '',
+          status: statusFilter || '',
+          type: typeFilter || '',
+          sort: sortBy || 'created_at',
+          order: sortOrder || 'desc'
+        };
 
-  const fetchLoops = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = {
-        search: searchTerm || '',
-        status: statusFilter || '',
-        type: typeFilter || '',
-        sort: sortBy || 'created_at',
-        order: sortOrder || 'desc'
-      };
+        const response = await loopAPI.getLoops(params);
 
-      const response = await loopAPI.getLoops(params);
-
-      if (response.data.success) {
-        setLoops(response.data.loops);
+        if (response.data.success) {
+          setLoops(response.data.loops);
+        }
+      } catch (error) {
+        const errorMessage = apiUtils.getErrorMessage(error);
+        addNotification(errorMessage, 'error');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      const errorMessage = apiUtils.getErrorMessage(error);
-      addNotification(errorMessage, 'error');
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    fetchLoops();
   }, [searchTerm, statusFilter, typeFilter, sortBy, sortOrder, addNotification]);
 
   const handleDelete = async (loopId) => {
