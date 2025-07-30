@@ -67,7 +67,7 @@ const Login = ({ onLogin, addNotification }) => {
               Nexus Realty NC
             </h1>
             <h2 className="text-xl font-semibold text-gray-700 mb-6">
-              Transaction Manager
+              Loop Manager
             </h2>
             <p className="text-sm text-gray-600">
               Real Estate Transaction Management Software
