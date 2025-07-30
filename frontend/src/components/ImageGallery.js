@@ -20,10 +20,20 @@ const ImageModal = ({ image, onClose }) => {
 
 const ImageGallery = ({ images = [], maxThumbnails = 3 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [imageErrors, setImageErrors] = useState({});
 
   if (!images || images.length === 0) {
     return null;
   }
+
+  const handleImageError = (index, filename) => {
+    console.error(`Failed to load image: ${filename}`);
+    setImageErrors(prev => ({ ...prev, [index]: true }));
+  };
+
+  const handleImageLoad = (index) => {
+    setImageErrors(prev => ({ ...prev, [index]: false }));
+  };
 
   const visibleImages = images.slice(0, maxThumbnails);
   const remainingCount = images.length - maxThumbnails;
