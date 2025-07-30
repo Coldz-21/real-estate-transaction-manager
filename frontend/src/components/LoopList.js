@@ -92,7 +92,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
       
       if (response.data.success) {
         addNotification('Loop archived successfully', 'success');
-        fetchLoops(); // Refresh the list
+        refreshLoops(); // Refresh the list
       }
     } catch (error) {
       const errorMessage = apiUtils.getErrorMessage(error);
