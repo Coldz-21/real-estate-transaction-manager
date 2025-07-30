@@ -198,6 +198,15 @@ const loopController = {
         timestamp: new Date().toISOString()
       });
 
+      // Log loop update activity
+      ActivityLogger.log(
+        req.user.id,
+        ActivityLogger.ACTION_TYPES.LOOP_UPDATED,
+        `Updated ${updatedLoop.type} loop for ${updatedLoop.property_address}`,
+        req,
+        { loopId: parseInt(id), changes: req.body }
+      );
+
       // Send email notification to admins
       try {
         await emailNotificationService.sendUpdatedLoopNotification(updatedLoop, req.user, req.body);
