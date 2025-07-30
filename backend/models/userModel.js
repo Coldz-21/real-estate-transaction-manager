@@ -74,5 +74,24 @@ module.exports = {
   
   getAllAgents: () => {
     return db.prepare('SELECT id, name, email FROM users WHERE role = ?').all('agent');
+  },
+
+  updateNotificationPreferences: (id, preferences) => {
+    const stmt = db.prepare(`
+      UPDATE users SET
+        notify_on_new_loops = ?,
+        notify_on_updated_loops = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    return stmt.run(preferences.notify_on_new_loops, preferences.notify_on_updated_loops, id);
+  },
+
+  getAdminsWithNotifications: (notificationType) => {
+    const column = notificationType === 'new' ? 'notify_on_new_loops' : 'notify_on_updated_loops';
+    return db.prepare(`
+      SELECT id, name, email FROM users
+      WHERE role = 'admin' AND ${column} = 1
+    `).all();
   }
 };
