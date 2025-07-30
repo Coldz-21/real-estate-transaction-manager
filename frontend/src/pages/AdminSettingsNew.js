@@ -3,7 +3,6 @@ import { settingsAPI, adminAPI, apiUtils } from '../services/api';
 
 const AdminSettingsNew = ({ user, addNotification }) => {
   const [activeTab, setActiveTab] = useState('notifications');
-  const [loading, setLoading] = useState(false);
 
   // Tab configuration
   const tabs = [
