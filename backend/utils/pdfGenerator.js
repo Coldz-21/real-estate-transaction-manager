@@ -158,11 +158,76 @@ const pdfGenerator = {
         doc.setTextColor(...primaryColor);
         doc.text('Notes', leftMargin, yPosition);
         yPosition += 10;
-        
+
         doc.setTextColor(...textColor);
         doc.setFontSize(10);
         yPosition = addWrappedText(loop.notes, leftMargin, yPosition, 150);
         yPosition += 15;
+      }
+
+      // Images Section
+      if (loop.images) {
+        try {
+          const images = imageUtils.parseImages(loop.images);
+          if (images.length > 0) {
+            doc.setFontSize(14);
+            doc.setTextColor(...primaryColor);
+            doc.text('Property Images', leftMargin, yPosition);
+            yPosition += 15;
+
+            let imagesPerRow = 2;
+            let imageWidth = 70;
+            let imageHeight = 50;
+
+            for (let i = 0; i < images.length && i < 6; i++) { // Limit to 6 images
+              const image = images[i];
+              const imagePath = imageUtils.getImagePath(image.filename);
+
+              if (fs.existsSync(imagePath)) {
+                try {
+                  // Process image with Jimp to get base64
+                  const processedImage = await Jimp.read(imagePath);
+                  processedImage.resize(imageWidth * 2, imageHeight * 2); // Higher resolution for PDF
+                  const base64 = await processedImage.getBase64Async(Jimp.MIME_JPEG);
+
+                  // Calculate position
+                  const col = i % imagesPerRow;
+                  const row = Math.floor(i / imagesPerRow);
+                  const x = leftMargin + (col * (imageWidth + 10));
+                  const y = yPosition + (row * (imageHeight + 15));
+
+                  // Check if we need a new page
+                  if (y + imageHeight > 270) {
+                    doc.addPage();
+                    yPosition = 20;
+                    const newY = yPosition + (row * (imageHeight + 15));
+                    doc.addImage(base64, 'JPEG', x, newY, imageWidth, imageHeight);
+
+                    // Add image caption
+                    doc.setFontSize(8);
+                    doc.setTextColor(...lightGray);
+                    doc.text(image.originalName || `Image ${i + 1}`, x, newY + imageHeight + 8);
+                  } else {
+                    doc.addImage(base64, 'JPEG', x, y, imageWidth, imageHeight);
+
+                    // Add image caption
+                    doc.setFontSize(8);
+                    doc.setTextColor(...lightGray);
+                    doc.text(image.originalName || `Image ${i + 1}`, x, y + imageHeight + 8);
+                  }
+                } catch (imageError) {
+                  console.error(`Error processing image ${image.filename}:`, imageError);
+                }
+              }
+            }
+
+            // Update yPosition to after images
+            const rows = Math.ceil(Math.min(images.length, 6) / imagesPerRow);
+            yPosition += (rows * (imageHeight + 15)) + 10;
+          }
+        } catch (imagesError) {
+          console.error('Error processing images for PDF:', imagesError);
+        }
       }
       
       // Footer
