@@ -70,7 +70,7 @@ const Login = ({ onLogin, addNotification }) => {
               Loop Manager
             </h2>
             <p className="text-sm text-gray-600">
-              Real Estate Transaction Management Software
+              Nexus Realty Loop Management Software
             </p>
           </div>
         </div>
@@ -183,7 +183,7 @@ const Login = ({ onLogin, addNotification }) => {
 
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            Build loops, build relationships - Nexus Realty NC Loop Management
+            <i>"Build loops, built relationships"</i>
           </p>
           <p className="text-xs text-gray-400 mt-2">
             © 2024 Nexus Realty NC. All rights reserved.
