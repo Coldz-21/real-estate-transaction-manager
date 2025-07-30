@@ -12,6 +12,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
+// Serve uploaded images
+app.use('/api/loops/images', express.static(path.join(__dirname, 'uploads/loops')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/loops', loopRoutes);
