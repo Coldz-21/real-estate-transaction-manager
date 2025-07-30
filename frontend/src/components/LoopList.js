@@ -14,7 +14,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
 
   useEffect(() => {
     fetchLoops();
-  }, [filters, searchTerm, statusFilter, typeFilter, sortBy, sortOrder]);
+  }, [searchTerm, statusFilter, typeFilter, sortBy, sortOrder]);
 
   const fetchLoops = async () => {
     try {
