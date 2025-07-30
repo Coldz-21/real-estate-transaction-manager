@@ -18,7 +18,6 @@ router.put('/:id', uploadImages, loopController.updateLoop);
 router.get('/:id/export/pdf', loopController.exportPDF);
 
 // Image routes
-router.get('/images/:filename', loopController.serveImage);
 router.delete('/:id/images/:filename', loopController.deleteLoopImage);
 
 // Admin only routes
