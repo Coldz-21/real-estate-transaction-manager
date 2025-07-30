@@ -21,6 +21,7 @@ app.use('/api/loops/images', express.static(path.join(__dirname, 'uploads/loops'
 app.use('/api/auth', authRoutes);
 app.use('/api/loops', loopRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Serve React app for any non-API routes
 app.get('*', (req, res) => {
