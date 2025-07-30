@@ -365,23 +365,7 @@ const loopController = {
     }
   },
 
-  serveImage: (req, res, next) => {
-    try {
-      const { filename } = req.params;
-      const imagePath = imageUtils.getImagePath(filename);
 
-      if (!imageUtils.imageExists(filename)) {
-        return res.status(404).json({
-          success: false,
-          error: 'Image not found'
-        });
-      }
-
-      res.sendFile(imagePath);
-    } catch (error) {
-      next(error);
-    }
-  },
 
   deleteLoopImage: async (req, res, next) => {
     try {
