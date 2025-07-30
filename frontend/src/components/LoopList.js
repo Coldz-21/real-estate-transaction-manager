@@ -27,15 +27,6 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
         order: sortOrder || 'desc'
       };
 
-      // Only add filters if they exist and are not empty
-      if (filters && typeof filters === 'object') {
-        Object.keys(filters).forEach(key => {
-          if (filters[key] !== undefined && filters[key] !== '') {
-            params[key] = filters[key];
-          }
-        });
-      }
-
       const response = await loopAPI.getLoops(params);
 
       if (response.data.success) {
@@ -47,7 +38,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
     } finally {
       setLoading(false);
     }
-  }, [searchTerm, statusFilter, typeFilter, sortBy, sortOrder, filters]);
+  }, [searchTerm, statusFilter, typeFilter, sortBy, sortOrder, addNotification]);
 
   const handleDelete = async (loopId) => {
     if (!window.confirm('Are you sure you want to delete this loop? This action cannot be undone.')) {
@@ -227,7 +218,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
       {loops.length === 0 ? (
         <div className="card">
           <div className="card-body text-center py-12">
-            <div className="text-6xl mb-4">��</div>
+            <div className="text-6xl mb-4">📋</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">No loops found</h3>
             <p className="text-gray-600 mb-4">
               {searchTerm || statusFilter || typeFilter
