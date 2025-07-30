@@ -16,10 +16,6 @@ const Dashboard = ({ user, addNotification, isAdmin = false }) => {
   const [recentLoops, setRecentLoops] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
@@ -49,6 +45,10 @@ const Dashboard = ({ user, addNotification, isAdmin = false }) => {
       setLoading(false);
     }
   }, [addNotification]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const handleExportCSV = async () => {
     try {
