@@ -16,6 +16,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Handle FormData content type
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => {
@@ -76,6 +82,53 @@ export const loopAPI = {
       responseType: 'blob',
       headers: {
         'Accept': 'application/pdf'
+      }
+    });
+  },
+
+  // Image operations
+  deleteLoopImage: (loopId, filename) => api.delete(`/loops/${loopId}/images/${filename}`)
+};
+
+// Settings API calls
+export const settingsAPI = {
+  getSettings: () => api.get('/settings'),
+  updateNotificationPreferences: (preferences) => api.put('/settings/notifications', preferences)
+};
+
+// Admin API calls
+export const adminAPI = {
+  // User Management
+  getAllUsers: () => api.get('/admin/users'),
+  getUserActivitySummary: () => api.get('/admin/users/activity'),
+
+  // Activity Logs
+  getActivityLogs: (params = {}) => api.get('/admin/activity-logs', { params }),
+
+  // Password Management
+  changePassword: (data) => api.put('/admin/change-password', data),
+
+  // User Suspension
+  suspendUser: (userId) => api.put(`/admin/users/${userId}/suspend`),
+  unsuspendUser: (userId) => api.put(`/admin/users/${userId}/unsuspend`),
+
+  // Export Functions
+  exportActivityLogs: (params = {}) => {
+    return api.get('/admin/export/activity-logs', {
+      params,
+      responseType: 'blob',
+      headers: {
+        'Accept': 'text/csv'
+      }
+    });
+  },
+
+  exportUserList: (params = {}) => {
+    return api.get('/admin/export/users', {
+      params,
+      responseType: 'blob',
+      headers: {
+        'Accept': 'text/csv'
       }
     });
   }

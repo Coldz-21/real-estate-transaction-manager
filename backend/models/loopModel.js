@@ -18,18 +18,45 @@ db.prepare(`
     client_email TEXT,
     client_phone TEXT,
     notes TEXT,
+    images TEXT,
     archived BOOLEAN DEFAULT 0,
     FOREIGN KEY (creator_id) REFERENCES users (id)
   )
 `).run();
+
+// Migration: Add images column if it doesn't exist
+try {
+  // Check if images column exists
+  const tableInfo = db.prepare("PRAGMA table_info(loops)").all();
+  console.log('Current loops table columns:', tableInfo.map(col => col.name));
+  const hasImagesColumn = tableInfo.some(column => column.name === 'images');
+
+  if (!hasImagesColumn) {
+    console.log('Adding images column to loops table...');
+    db.prepare('ALTER TABLE loops ADD COLUMN images TEXT').run();
+    console.log('Images column added successfully');
+  } else {
+    console.log('Images column already exists in loops table');
+  }
+} catch (error) {
+  console.error('Error during migration:', error);
+  // If migration fails, try again
+  try {
+    console.log('Attempting to add images column with ALTER TABLE...');
+    db.prepare('ALTER TABLE loops ADD COLUMN images TEXT').run();
+    console.log('Images column added on retry');
+  } catch (retryError) {
+    console.error('Retry failed:', retryError);
+  }
+}
 
 module.exports = {
   createLoop: (loopData) => {
     const stmt = db.prepare(`
       INSERT INTO loops (
         type, sale, creator_id, start_date, end_date, tags, status,
-        property_address, client_name, client_email, client_phone, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        property_address, client_name, client_email, client_phone, notes, images
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     return stmt.run(
       loopData.type,
@@ -43,7 +70,8 @@ module.exports = {
       loopData.client_name,
       loopData.client_email,
       loopData.client_phone,
-      loopData.notes
+      loopData.notes,
+      loopData.images
     );
   },
 
@@ -107,10 +135,10 @@ module.exports = {
 
   updateLoop: (id, loopData) => {
     const stmt = db.prepare(`
-      UPDATE loops SET 
-        type = ?, sale = ?, start_date = ?, end_date = ?, tags = ?, 
-        status = ?, property_address = ?, client_name = ?, client_email = ?, 
-        client_phone = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+      UPDATE loops SET
+        type = ?, sale = ?, start_date = ?, end_date = ?, tags = ?,
+        status = ?, property_address = ?, client_name = ?, client_email = ?,
+        client_phone = ?, notes = ?, images = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
     return stmt.run(
@@ -125,6 +153,7 @@ module.exports = {
       loopData.client_email,
       loopData.client_phone,
       loopData.notes,
+      loopData.images,
       id
     );
   },

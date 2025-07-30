@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const userModel = require('../models/userModel');
+const ActivityLogger = require('../services/activityLogger');
 
 const authController = {
   login: async (req, res, next) => {
@@ -35,14 +36,17 @@ const authController = {
 
       // Generate JWT token
       const token = jwt.sign(
-        { 
-          id: user.id, 
-          email: user.email, 
-          role: user.role 
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role
         },
         config.jwtSecret,
         { expiresIn: '24h' }
       );
+
+      // Log successful login
+      ActivityLogger.log(user.id, ActivityLogger.ACTION_TYPES.LOGIN, `User logged in`, req);
 
       res.json({
         success: true,

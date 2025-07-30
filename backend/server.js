@@ -3,6 +3,8 @@ const cors = require('cors');
 const path = require('path');
 const authRoutes = require('./routes/authRoutes');
 const loopRoutes = require('./routes/loopRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -12,9 +14,14 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
+// Serve uploaded images
+app.use('/api/loops/images', express.static(path.join(__dirname, 'uploads/loops')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/loops', loopRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Serve React app for any non-API routes
 app.get('*', (req, res) => {

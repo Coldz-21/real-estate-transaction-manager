@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AgentDashboard from './pages/AgentDashboard';
 import CreateLoop from './pages/CreateLoop';
 import EditLoop from './pages/EditLoop';
+import AdminSettings from './pages/AdminSettingsNew';
 import NotificationAlert from './components/NotificationAlert';
 import { apiUtils } from './services/api';
 
@@ -163,6 +164,20 @@ const App = () => {
                     user={user}
                     addNotification={addNotification}
                   />
+                }
+              />
+
+              <Route
+                path="/settings"
+                element={
+                  user?.role === 'admin' ? (
+                    <AdminSettings
+                      user={user}
+                      addNotification={addNotification}
+                    />
+                  ) : (
+                    <Navigate to="/dashboard/agent" replace />
+                  )
                 }
               />
 

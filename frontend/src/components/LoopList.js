@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { loopAPI, apiUtils } from '../services/api';
 import { dateUtils } from '../utils/dateUtils';
+import ImageGallery from './ImageGallery';
 
 const LoopList = ({ user, addNotification, filters = {} }) => {
   const [loops, setLoops] = useState([]);
@@ -275,8 +276,9 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
                   <tr key={loop.id}>
                     <td className="font-medium">#{loop.id}</td>
                     <td>{loop.type}</td>
-                    <td className="max-w-xs truncate" title={loop.property_address}>
-                      {loop.property_address || 'N/A'}
+                    <td className="max-w-xs" title={loop.property_address}>
+                      <div className="truncate">{loop.property_address || 'N/A'}</div>
+                      <ImageGallery images={loop.imageList || []} maxThumbnails={2} />
                     </td>
                     <td>{loop.client_name || 'N/A'}</td>
                     <td>

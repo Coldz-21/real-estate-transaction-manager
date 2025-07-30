@@ -2,6 +2,9 @@ const loopModel = require('../models/loopModel');
 const excelLogger = require('../utils/excelLogger');
 const csvExport = require('../utils/csvExport');
 const pdfGenerator = require('../utils/pdfGenerator');
+const imageUtils = require('../utils/imageUtils');
+const emailNotificationService = require('../services/emailNotificationService');
+const ActivityLogger = require('../services/activityLogger');
 
 const loopController = {
   createLoop: async (req, res, next) => {
@@ -10,6 +13,11 @@ const loopController = {
         ...req.body,
         creator_id: req.user.id
       };
+
+      // Process uploaded images
+      if (req.files && req.files.length > 0) {
+        loopData.images = imageUtils.processUploadedImages(req.files);
+      }
 
       // Validate required fields
       if (!loopData.type || !loopData.property_address) {
@@ -20,6 +28,7 @@ const loopController = {
       }
 
       const result = loopModel.createLoop(loopData);
+      const createdLoop = { ...loopData, id: result.lastInsertRowid };
 
       // Log the creation
       await excelLogger.log('NEW_LOOP', {
@@ -29,6 +38,23 @@ const loopController = {
         property_address: loopData.property_address,
         timestamp: new Date().toISOString()
       });
+
+      // Log loop creation activity
+      ActivityLogger.log(
+        req.user.id,
+        ActivityLogger.ACTION_TYPES.LOOP_CREATED,
+        `Created new ${loopData.type} loop for ${loopData.property_address}`,
+        req,
+        { loopId: result.lastInsertRowid, type: loopData.type, property_address: loopData.property_address }
+      );
+
+      // Send email notification to admins
+      try {
+        await emailNotificationService.sendNewLoopNotification(createdLoop, req.user);
+      } catch (emailError) {
+        console.error('Failed to send new loop notification email:', emailError);
+        // Don't fail the request if email fails
+      }
 
       res.status(201).json({
         success: true,
@@ -58,10 +84,16 @@ const loopController = {
 
       const loops = loopModel.getAllLoops(filters);
 
+      // Parse images for all loops
+      const loopsWithImages = loops.map(loop => ({
+        ...loop,
+        imageList: imageUtils.parseImages(loop.images)
+      }));
+
       res.json({
         success: true,
-        loops,
-        count: loops.length
+        loops: loopsWithImages,
+        count: loopsWithImages.length
       });
     } catch (error) {
       next(error);
@@ -88,9 +120,15 @@ const loopController = {
         });
       }
 
+      // Parse images for frontend
+      const loopWithImages = {
+        ...loop,
+        imageList: imageUtils.parseImages(loop.images)
+      };
+
       res.json({
         success: true,
-        loop
+        loop: loopWithImages
       });
     } catch (error) {
       next(error);
@@ -117,7 +155,30 @@ const loopController = {
         });
       }
 
-      const result = loopModel.updateLoop(id, req.body);
+      const updateData = { ...req.body };
+
+      // Handle image updates
+      if (req.files && req.files.length > 0) {
+        // If replacing images, delete old ones
+        if (loop.images && req.body.replaceImages === 'true') {
+          await imageUtils.deleteImages(loop.images);
+        }
+
+        // Process new images
+        const newImages = imageUtils.processUploadedImages(req.files);
+
+        if (req.body.replaceImages === 'true') {
+          updateData.images = newImages;
+        } else {
+          // Append to existing images
+          const existingImages = imageUtils.parseImages(loop.images);
+          const newImagesArray = imageUtils.parseImages(newImages);
+          const combinedImages = [...existingImages, ...newImagesArray];
+          updateData.images = JSON.stringify(combinedImages);
+        }
+      }
+
+      const result = loopModel.updateLoop(id, updateData);
 
       if (result.changes === 0) {
         return res.status(404).json({
@@ -126,6 +187,9 @@ const loopController = {
         });
       }
 
+      // Get updated loop for email notification
+      const updatedLoop = loopModel.getLoopById(id);
+
       // Log the update
       await excelLogger.log('UPDATED_LOOP', {
         id: parseInt(id),
@@ -133,6 +197,23 @@ const loopController = {
         changes: req.body,
         timestamp: new Date().toISOString()
       });
+
+      // Log loop update activity
+      ActivityLogger.log(
+        req.user.id,
+        ActivityLogger.ACTION_TYPES.LOOP_UPDATED,
+        `Updated ${updatedLoop.type} loop for ${updatedLoop.property_address}`,
+        req,
+        { loopId: parseInt(id), changes: req.body }
+      );
+
+      // Send email notification to admins
+      try {
+        await emailNotificationService.sendUpdatedLoopNotification(updatedLoop, req.user, req.body);
+      } catch (emailError) {
+        console.error('Failed to send updated loop notification email:', emailError);
+        // Don't fail the request if email fails
+      }
 
       res.json({
         success: true,
@@ -161,6 +242,11 @@ const loopController = {
           success: false,
           error: 'Only admins can delete loops'
         });
+      }
+
+      // Delete associated images
+      if (loop.images) {
+        await imageUtils.deleteImages(loop.images);
       }
 
       const result = loopModel.deleteLoop(id);
@@ -313,6 +399,67 @@ const loopController = {
           ...stats,
           closing_soon: closingLoops.length
         }
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+
+
+  deleteLoopImage: async (req, res, next) => {
+    try {
+      const { id, filename } = req.params;
+      const loop = loopModel.getLoopById(id);
+
+      if (!loop) {
+        return res.status(404).json({
+          success: false,
+          error: 'Loop not found'
+        });
+      }
+
+      // Check permissions
+      if (req.user.role !== 'admin' && loop.creator_id !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'Access denied'
+        });
+      }
+
+      if (!loop.images) {
+        return res.status(404).json({
+          success: false,
+          error: 'No images found for this loop'
+        });
+      }
+
+      const images = imageUtils.parseImages(loop.images);
+      const imageToDelete = images.find(img => img.filename === filename);
+
+      if (!imageToDelete) {
+        return res.status(404).json({
+          success: false,
+          error: 'Image not found'
+        });
+      }
+
+      // Remove image from filesystem
+      const imagePath = imageUtils.getImagePath(filename);
+      await imageUtils.deleteImages(JSON.stringify([imageToDelete]));
+
+      // Update database
+      const updatedImages = images.filter(img => img.filename !== filename);
+      const updateData = {
+        ...loop,
+        images: updatedImages.length > 0 ? JSON.stringify(updatedImages) : null
+      };
+
+      loopModel.updateLoop(id, updateData);
+
+      res.json({
+        success: true,
+        message: 'Image deleted successfully'
       });
     } catch (error) {
       next(error);
