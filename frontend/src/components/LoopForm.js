@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { dateUtils } from '../utils/dateUtils';
+import ImageUpload from './ImageUpload';
 
 const LoopForm = ({ initialData = {}, onSubmit, loading = false, isEdit = false }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ const LoopForm = ({ initialData = {}, onSubmit, loading = false, isEdit = false 
     notes: '',
     ...initialData
   });
+
+  const [images, setImages] = useState([]);
 
   const [errors, setErrors] = useState({});
 
@@ -34,6 +37,15 @@ const LoopForm = ({ initialData = {}, onSubmit, loading = false, isEdit = false 
         tags: initialData.tags || '',
         notes: initialData.notes || ''
       });
+
+      // Set existing images if available
+      if (initialData.imageList && initialData.imageList.length > 0) {
+        setImages(initialData.imageList.map(img => ({
+          ...img,
+          preview: null,
+          isNew: false
+        })));
+      }
     }
   }, [initialData]);
 
@@ -100,17 +112,34 @@ const LoopForm = ({ initialData = {}, onSubmit, loading = false, isEdit = false 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
-      // Format data before submission
-      const submitData = {
-        ...formData,
-        sale: formData.sale ? parseFloat(formData.sale) : null,
-        tags: formData.tags.trim(),
-        notes: formData.notes.trim()
-      };
-      
-      onSubmit(submitData);
+      // Create FormData for file upload
+      const formDataToSubmit = new FormData();
+
+      // Add form fields
+      Object.keys(formData).forEach(key => {
+        if (formData[key] !== null && formData[key] !== '') {
+          if (key === 'sale' && formData[key]) {
+            formDataToSubmit.append(key, parseFloat(formData[key]));
+          } else {
+            formDataToSubmit.append(key, formData[key]);
+          }
+        }
+      });
+
+      // Add image files (only new uploads)
+      const newImages = images.filter(img => img.isNew && img.file);
+      newImages.forEach(image => {
+        formDataToSubmit.append('images', image.file);
+      });
+
+      // For edits, indicate if we want to replace images
+      if (isEdit && newImages.length > 0) {
+        formDataToSubmit.append('replaceImages', 'false'); // Append to existing
+      }
+
+      onSubmit(formDataToSubmit);
     }
   };
 
@@ -352,6 +381,19 @@ const LoopForm = ({ initialData = {}, onSubmit, loading = false, isEdit = false 
                 placeholder="Add any additional notes or comments about this transaction..."
                 disabled={loading}
               />
+            </div>
+
+            <div className="form-group">
+              <label>Property Images</label>
+              <ImageUpload
+                images={images}
+                onImagesChange={setImages}
+                maxImages={5}
+                disabled={loading}
+              />
+              <p className="text-sm text-gray-600 mt-1">
+                Upload up to 5 images of the property (JPG, PNG, GIF, max 5MB each)
+              </p>
             </div>
           </div>
         </div>
