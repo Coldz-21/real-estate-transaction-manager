@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 const userModel = require('../models/userModel');
+const ActivityLogger = require('../services/activityLogger');
 
 const authController = {
   login: async (req, res, next) => {
