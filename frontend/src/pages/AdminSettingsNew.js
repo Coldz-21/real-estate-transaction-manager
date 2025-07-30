@@ -393,13 +393,51 @@ const UserManagement = ({ addNotification }) => {
                         </div>
                       </td>
                       <td>
-                        <button
-                          onClick={() => openPasswordModal(user)}
-                          className="btn btn-sm btn-secondary"
-                          title={`Change password for ${user.name}`}
-                        >
-                          🔐 Change Password
-                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => openPasswordModal(user)}
+                            className="btn btn-sm btn-secondary"
+                            title={`Change password for ${user.name}`}
+                          >
+                            🔐 Change Password
+                          </button>
+
+                          {user.role !== 'admin' && (
+                            user.suspended ? (
+                              <button
+                                onClick={() => unsuspendUser(user)}
+                                disabled={suspendingUsers.has(user.id)}
+                                className="btn btn-sm btn-success"
+                                title={`Unsuspend ${user.name}`}
+                              >
+                                {suspendingUsers.has(user.id) ? (
+                                  <>
+                                    <div className="spinner"></div>
+                                    Unsuspending...
+                                  </>
+                                ) : (
+                                  '✅ Unsuspend'
+                                )}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => suspendUser(user)}
+                                disabled={suspendingUsers.has(user.id)}
+                                className="btn btn-sm btn-danger"
+                                title={`Suspend ${user.name}`}
+                              >
+                                {suspendingUsers.has(user.id) ? (
+                                  <>
+                                    <div className="spinner"></div>
+                                    Suspending...
+                                  </>
+                                ) : (
+                                  '❌ Suspend'
+                                )}
+                              </button>
+                            )
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
