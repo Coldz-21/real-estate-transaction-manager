@@ -18,7 +18,7 @@ const Dashboard = ({ user, addNotification, isAdmin = false }) => {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
 
   const fetchDashboardData = async () => {
     try {
