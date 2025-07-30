@@ -96,6 +96,40 @@ export const settingsAPI = {
   updateNotificationPreferences: (preferences) => api.put('/settings/notifications', preferences)
 };
 
+// Admin API calls
+export const adminAPI = {
+  // User Management
+  getAllUsers: () => api.get('/admin/users'),
+  getUserActivitySummary: () => api.get('/admin/users/activity'),
+
+  // Activity Logs
+  getActivityLogs: (params = {}) => api.get('/admin/activity-logs', { params }),
+
+  // Password Management
+  changePassword: (data) => api.put('/admin/change-password', data),
+
+  // Export Functions
+  exportActivityLogs: (params = {}) => {
+    return api.get('/admin/export/activity-logs', {
+      params,
+      responseType: 'blob',
+      headers: {
+        'Accept': 'text/csv'
+      }
+    });
+  },
+
+  exportUserList: (params = {}) => {
+    return api.get('/admin/export/users', {
+      params,
+      responseType: 'blob',
+      headers: {
+        'Accept': 'text/csv'
+      }
+    });
+  }
+};
+
 // Utility functions
 export const apiUtils = {
   // Handle file download
