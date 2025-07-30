@@ -74,7 +74,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
       
       if (response.data.success) {
         addNotification('Loop deleted successfully', 'success');
-        fetchLoops(); // Refresh the list
+        refreshLoops(); // Refresh the list
       }
     } catch (error) {
       const errorMessage = apiUtils.getErrorMessage(error);
