@@ -309,6 +309,7 @@ const UserManagement = ({ addNotification }) => {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Role</th>
+                  <th>Status</th>
                   <th>Registered</th>
                   <th>Activity Summary</th>
                   <th>Actions</th>
