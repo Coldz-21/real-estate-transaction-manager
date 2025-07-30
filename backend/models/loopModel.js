@@ -24,6 +24,21 @@ db.prepare(`
   )
 `).run();
 
+// Migration: Add images column if it doesn't exist
+try {
+  // Check if images column exists
+  const tableInfo = db.prepare("PRAGMA table_info(loops)").all();
+  const hasImagesColumn = tableInfo.some(column => column.name === 'images');
+
+  if (!hasImagesColumn) {
+    console.log('Adding images column to loops table...');
+    db.prepare('ALTER TABLE loops ADD COLUMN images TEXT').run();
+    console.log('Images column added successfully');
+  }
+} catch (error) {
+  console.error('Error during migration:', error);
+}
+
 module.exports = {
   createLoop: (loopData) => {
     const stmt = db.prepare(`
