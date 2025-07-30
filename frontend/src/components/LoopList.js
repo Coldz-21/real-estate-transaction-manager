@@ -16,7 +16,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
     fetchLoops();
   }, [searchTerm, statusFilter, typeFilter, sortBy, sortOrder]);
 
-  const fetchLoops = async () => {
+  const fetchLoops = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -47,7 +47,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, statusFilter, typeFilter, sortBy, sortOrder, filters, addNotification]);
 
   const handleDelete = async (loopId) => {
     if (!window.confirm('Are you sure you want to delete this loop? This action cannot be undone.')) {
