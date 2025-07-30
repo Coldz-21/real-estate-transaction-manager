@@ -1,4 +1,8 @@
 const { jsPDF } = require('jspdf');
+const Jimp = require('jimp');
+const path = require('path');
+const fs = require('fs');
+const imageUtils = require('./imageUtils');
 
 const pdfGenerator = {
   generatePDF: async (loop) => {
