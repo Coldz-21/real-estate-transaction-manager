@@ -12,9 +12,17 @@ const authMiddleware = (req, res, next) => {
 
     const decoded = jwt.verify(token, config.jwtSecret);
     const user = userModel.findById(decoded.id);
-    
+
     if (!user) {
       return res.status(401).json({ error: 'Invalid token.' });
+    }
+
+    // Check if user is suspended
+    if (user.suspended) {
+      return res.status(403).json({
+        error: 'Account suspended. Please contact an administrator.',
+        suspended: true
+      });
     }
 
     req.user = {
