@@ -20,10 +20,10 @@ const Dashboard = ({ user, addNotification, isAdmin = false }) => {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Fetch stats
       const statsResponse = await loopAPI.getStats();
       if (statsResponse.data.success) {
@@ -48,7 +48,7 @@ const Dashboard = ({ user, addNotification, isAdmin = false }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addNotification]);
 
   const handleExportCSV = async () => {
     try {
