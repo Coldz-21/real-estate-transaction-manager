@@ -77,8 +77,16 @@ module.exports = {
       params.push(filters.creator_id);
     }
 
-    // Default sorting by created_at desc
-    query += ' ORDER BY l.created_at DESC';
+    // Handle sorting
+    const sortField = filters.sort || 'created_at';
+    const sortOrder = filters.order || 'desc';
+
+    // Validate sort field to prevent SQL injection
+    const allowedSortFields = ['created_at', 'updated_at', 'end_date', 'sale', 'status', 'type'];
+    const validSortField = allowedSortFields.includes(sortField) ? sortField : 'created_at';
+    const validSortOrder = ['asc', 'desc'].includes(sortOrder) ? sortOrder : 'desc';
+
+    query += ` ORDER BY l.${validSortField} ${validSortOrder.toUpperCase()}`;
 
     if (filters.limit) {
       query += ' LIMIT ?';
