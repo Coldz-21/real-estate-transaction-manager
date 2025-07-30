@@ -27,6 +27,7 @@ const loopController = {
       }
 
       const result = loopModel.createLoop(loopData);
+      const createdLoop = { ...loopData, id: result.lastInsertRowid };
 
       // Log the creation
       await excelLogger.log('NEW_LOOP', {
@@ -36,6 +37,14 @@ const loopController = {
         property_address: loopData.property_address,
         timestamp: new Date().toISOString()
       });
+
+      // Send email notification to admins
+      try {
+        await emailNotificationService.sendNewLoopNotification(createdLoop, req.user);
+      } catch (emailError) {
+        console.error('Failed to send new loop notification email:', emailError);
+        // Don't fail the request if email fails
+      }
 
       res.status(201).json({
         success: true,
