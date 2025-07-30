@@ -42,9 +42,6 @@ const loopController = {
 
   getLoops: (req, res, next) => {
     try {
-      console.log('GET /api/loops called by user:', req.user?.id, req.user?.name);
-      console.log('Query params:', req.query);
-
       const filters = {
         status: req.query.status,
         type: req.query.type,
@@ -59,20 +56,14 @@ const loopController = {
         filters.creator_id = req.user.id;
       }
 
-      console.log('Applying filters:', filters);
       const loops = loopModel.getAllLoops(filters);
-      console.log('Found', loops.length, 'loops');
 
-      const response = {
+      res.json({
         success: true,
         loops,
         count: loops.length
-      };
-
-      console.log('Sending response:', { success: true, count: loops.length });
-      res.json(response);
+      });
     } catch (error) {
-      console.error('Error in getLoops:', error);
       next(error);
     }
   },
