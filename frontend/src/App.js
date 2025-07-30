@@ -89,83 +89,85 @@ const App = () => {
   }
 
   return (
-    <Router>
-      <div className="app-container">
-        <Sidebar user={user} onLogout={handleLogout} />
-        
-        <div className="content">
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <Navigate 
-                  to={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/agent'} 
-                  replace 
-                />
-              } 
-            />
-            
-            <Route 
-              path="/dashboard/admin" 
-              element={
-                user?.role === 'admin' ? (
-                  <AdminDashboard 
-                    user={user} 
-                    addNotification={addNotification} 
-                  />
-                ) : (
-                  <Navigate to="/dashboard/agent" replace />
-                )
-              } 
-            />
-            
-            <Route 
-              path="/dashboard/agent" 
-              element={
-                <AgentDashboard 
-                  user={user} 
-                  addNotification={addNotification} 
-                />
-              } 
-            />
-            
-            <Route 
-              path="/loops/new" 
-              element={
-                <CreateLoop 
-                  user={user} 
-                  addNotification={addNotification} 
-                />
-              } 
-            />
-            
-            <Route 
-              path="/loops/edit/:id" 
-              element={
-                <EditLoop 
-                  user={user} 
-                  addNotification={addNotification} 
-                />
-              } 
-            />
-            
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+    <>
+      <Router>
+        <div className="app-container">
+          <Sidebar user={user} onLogout={handleLogout} />
 
-        {/* Notifications */}
-        <div className="fixed top-4 right-4 z-50 space-y-2">
-          {notifications.map(notification => (
-            <NotificationAlert
-              key={notification.id}
-              message={notification.message}
-              type={notification.type}
-              onClose={() => removeNotification(notification.id)}
-            />
-          ))}
+          <div className="content">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Navigate
+                    to={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/agent'}
+                    replace
+                  />
+                }
+              />
+
+              <Route
+                path="/dashboard/admin"
+                element={
+                  user?.role === 'admin' ? (
+                    <AdminDashboard
+                      user={user}
+                      addNotification={addNotification}
+                    />
+                  ) : (
+                    <Navigate to="/dashboard/agent" replace />
+                  )
+                }
+              />
+
+              <Route
+                path="/dashboard/agent"
+                element={
+                  <AgentDashboard
+                    user={user}
+                    addNotification={addNotification}
+                  />
+                }
+              />
+
+              <Route
+                path="/loops/new"
+                element={
+                  <CreateLoop
+                    user={user}
+                    addNotification={addNotification}
+                  />
+                }
+              />
+
+              <Route
+                path="/loops/edit/:id"
+                element={
+                  <EditLoop
+                    user={user}
+                    addNotification={addNotification}
+                  />
+                }
+              />
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
         </div>
+      </Router>
+
+      {/* Global Notifications */}
+      <div className="fixed top-4 right-4 z-50 space-y-2">
+        {notifications.map(notification => (
+          <NotificationAlert
+            key={notification.id}
+            message={notification.message}
+            type={notification.type}
+            onClose={() => removeNotification(notification.id)}
+          />
+        ))}
       </div>
-    </Router>
+    </>
   );
 };
 
