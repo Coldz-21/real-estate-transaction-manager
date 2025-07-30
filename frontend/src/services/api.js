@@ -108,6 +108,10 @@ export const adminAPI = {
   // Password Management
   changePassword: (data) => api.put('/admin/change-password', data),
 
+  // User Suspension
+  suspendUser: (userId) => api.put(`/admin/users/${userId}/suspend`),
+  unsuspendUser: (userId) => api.put(`/admin/users/${userId}/unsuspend`),
+
   // Export Functions
   exportActivityLogs: (params = {}) => {
     return api.get('/admin/export/activity-logs', {
