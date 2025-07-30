@@ -131,7 +131,6 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
       return null;
     }
 
-    const days = dateUtils.getDaysUntil(endDate);
     const countdownText = dateUtils.getCountdownText(endDate);
     const dateStatus = dateUtils.getDateStatus(endDate);
 
