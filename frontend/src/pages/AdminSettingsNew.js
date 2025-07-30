@@ -216,6 +216,7 @@ const UserManagement = ({ addNotification }) => {
   const [passwordModal, setPasswordModal] = useState({ show: false, user: null });
   const [passwordData, setPasswordData] = useState({ newPassword: '', confirmPassword: '' });
   const [changingPassword, setChangingPassword] = useState(false);
+  const [suspendingUsers, setSuspendingUsers] = useState(new Set());
 
   useEffect(() => {
     fetchUsers();
