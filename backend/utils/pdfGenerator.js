@@ -184,10 +184,9 @@ const pdfGenerator = {
 
               if (fs.existsSync(imagePath)) {
                 try {
-                  // Process image with Jimp to get base64
-                  const processedImage = await Jimp.read(imagePath);
-                  processedImage.resize(imageWidth * 2, imageHeight * 2); // Higher resolution for PDF
-                  const base64 = await processedImage.getBase64Async(Jimp.MIME_JPEG);
+                  // Read image as base64
+                  const imageBuffer = fs.readFileSync(imagePath);
+                  const base64 = `data:${image.mimetype || 'image/jpeg'};base64,${imageBuffer.toString('base64')}`;
 
                   // Calculate position
                   const col = i % imagesPerRow;
