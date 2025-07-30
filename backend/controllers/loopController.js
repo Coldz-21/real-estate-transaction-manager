@@ -65,16 +65,10 @@ const loopController = {
       const loops = loopModel.getAllLoops(filters);
 
       // Parse images for all loops
-      const loopsWithImages = loops.map(loop => {
-        const imageList = imageUtils.parseImages(loop.images);
-        if (imageList.length > 0) {
-          console.log(`Loop ${loop.id} has ${imageList.length} images:`, imageList.map(img => img.filename));
-        }
-        return {
-          ...loop,
-          imageList
-        };
-      });
+      const loopsWithImages = loops.map(loop => ({
+        ...loop,
+        imageList: imageUtils.parseImages(loop.images)
+      }));
 
       res.json({
         success: true,
