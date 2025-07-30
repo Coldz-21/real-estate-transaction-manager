@@ -18,6 +18,7 @@ db.prepare(`
     client_email TEXT,
     client_phone TEXT,
     notes TEXT,
+    images TEXT,
     archived BOOLEAN DEFAULT 0,
     FOREIGN KEY (creator_id) REFERENCES users (id)
   )
@@ -28,8 +29,8 @@ module.exports = {
     const stmt = db.prepare(`
       INSERT INTO loops (
         type, sale, creator_id, start_date, end_date, tags, status,
-        property_address, client_name, client_email, client_phone, notes
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        property_address, client_name, client_email, client_phone, notes, images
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     return stmt.run(
       loopData.type,
@@ -43,7 +44,8 @@ module.exports = {
       loopData.client_name,
       loopData.client_email,
       loopData.client_phone,
-      loopData.notes
+      loopData.notes,
+      loopData.images
     );
   },
 
@@ -107,10 +109,10 @@ module.exports = {
 
   updateLoop: (id, loopData) => {
     const stmt = db.prepare(`
-      UPDATE loops SET 
-        type = ?, sale = ?, start_date = ?, end_date = ?, tags = ?, 
-        status = ?, property_address = ?, client_name = ?, client_email = ?, 
-        client_phone = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+      UPDATE loops SET
+        type = ?, sale = ?, start_date = ?, end_date = ?, tags = ?,
+        status = ?, property_address = ?, client_name = ?, client_email = ?,
+        client_phone = ?, notes = ?, images = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `);
     return stmt.run(
@@ -125,6 +127,7 @@ module.exports = {
       loopData.client_email,
       loopData.client_phone,
       loopData.notes,
+      loopData.images,
       id
     );
   },
