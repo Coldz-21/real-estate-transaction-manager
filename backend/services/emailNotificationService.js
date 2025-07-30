@@ -4,7 +4,7 @@ const userModel = require('../models/userModel');
 class EmailNotificationService {
   constructor() {
     // Configure email transporter
-    this.transporter = nodemailer.createTransporter({
+    this.transporter = nodemailer.createTransport({
       // For development, use ethereal email or configure with your SMTP settings
       host: process.env.SMTP_HOST || 'smtp.ethereal.email',
       port: process.env.SMTP_PORT || 587,
