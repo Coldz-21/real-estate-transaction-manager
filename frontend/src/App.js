@@ -6,6 +6,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AgentDashboard from './pages/AgentDashboard';
 import CreateLoop from './pages/CreateLoop';
 import EditLoop from './pages/EditLoop';
+import AdminSettings from './pages/AdminSettings';
 import NotificationAlert from './components/NotificationAlert';
 import { apiUtils } from './services/api';
 
