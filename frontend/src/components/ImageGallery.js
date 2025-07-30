@@ -49,16 +49,39 @@ const ImageGallery = ({ images = [], maxThumbnails = 3 }) => {
   return (
     <>
       <div className="loop-images">
-        {visibleImages.map((image, index) => (
-          <img
-            key={index}
-            src={`/api/loops/images/${image.filename}`}
-            alt={image.originalName || `Property image ${index + 1}`}
-            className="loop-image-thumbnail"
-            onClick={() => openImage(image)}
-            title={`Click to view ${image.originalName || 'image'}`}
-          />
-        ))}
+        {visibleImages.map((image, index) => {
+          if (imageErrors[index]) {
+            return (
+              <div
+                key={index}
+                className="loop-image-thumbnail"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#f3f4f6',
+                  color: '#6b7280',
+                  fontSize: '12px'
+                }}
+              >
+                ❌
+              </div>
+            );
+          }
+
+          return (
+            <img
+              key={index}
+              src={`/api/loops/images/${image.filename}`}
+              alt={image.originalName || `Property image ${index + 1}`}
+              className="loop-image-thumbnail"
+              onClick={() => openImage(image)}
+              onError={() => handleImageError(index, image.filename)}
+              onLoad={() => handleImageLoad(index)}
+              title={`Click to view ${image.originalName || 'image'}`}
+            />
+          );
+        })}
         
         {remainingCount > 0 && (
           <div className="loop-images-count">
