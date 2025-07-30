@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { loopAPI, apiUtils } from '../services/api';
 import { dateUtils } from '../utils/dateUtils';
+import ImageFeatureDemo from './ImageFeatureDemo';
 
 const Dashboard = ({ user, addNotification, isAdmin = false }) => {
   const [stats, setStats] = useState({
