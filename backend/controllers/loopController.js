@@ -177,6 +177,9 @@ const loopController = {
         });
       }
 
+      // Get updated loop for email notification
+      const updatedLoop = loopModel.getLoopById(id);
+
       // Log the update
       await excelLogger.log('UPDATED_LOOP', {
         id: parseInt(id),
@@ -184,6 +187,14 @@ const loopController = {
         changes: req.body,
         timestamp: new Date().toISOString()
       });
+
+      // Send email notification to admins
+      try {
+        await emailNotificationService.sendUpdatedLoopNotification(updatedLoop, req.user, req.body);
+      } catch (emailError) {
+        console.error('Failed to send updated loop notification email:', emailError);
+        // Don't fail the request if email fails
+      }
 
       res.json({
         success: true,
