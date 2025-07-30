@@ -72,29 +72,17 @@ const App = () => {
       <Router>
         <div className="min-h-screen bg-gray-50">
           <Routes>
-            <Route 
-              path="/login" 
+            <Route
+              path="/login"
               element={
-                <Login 
-                  onLogin={handleLogin} 
-                  addNotification={addNotification} 
+                <Login
+                  onLogin={handleLogin}
+                  addNotification={addNotification}
                 />
-              } 
+              }
             />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
-          
-          {/* Notifications */}
-          <div className="fixed top-4 right-4 z-50 space-y-2">
-            {notifications.map(notification => (
-              <NotificationAlert
-                key={notification.id}
-                message={notification.message}
-                type={notification.type}
-                onClose={() => removeNotification(notification.id)}
-              />
-            ))}
-          </div>
         </div>
       </Router>
     );
