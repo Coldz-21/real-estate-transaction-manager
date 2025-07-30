@@ -285,6 +285,56 @@ const UserManagement = ({ addNotification }) => {
     }
   };
 
+  const suspendUser = async (user) => {
+    if (!window.confirm(`Are you sure you want to suspend ${user.name}? They will not be able to log in until unsuspended.`)) {
+      return;
+    }
+
+    try {
+      setSuspendingUsers(prev => new Set([...prev, user.id]));
+      const response = await adminAPI.suspendUser(user.id);
+
+      if (response.data.success) {
+        addNotification(response.data.message, 'success');
+        fetchUsers(); // Refresh the user list
+      }
+    } catch (error) {
+      const errorMessage = apiUtils.getErrorMessage(error);
+      addNotification(errorMessage, 'error');
+    } finally {
+      setSuspendingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(user.id);
+        return newSet;
+      });
+    }
+  };
+
+  const unsuspendUser = async (user) => {
+    if (!window.confirm(`Are you sure you want to unsuspend ${user.name}? They will be able to log in again.`)) {
+      return;
+    }
+
+    try {
+      setSuspendingUsers(prev => new Set([...prev, user.id]));
+      const response = await adminAPI.unsuspendUser(user.id);
+
+      if (response.data.success) {
+        addNotification(response.data.message, 'success');
+        fetchUsers(); // Refresh the user list
+      }
+    } catch (error) {
+      const errorMessage = apiUtils.getErrorMessage(error);
+      addNotification(errorMessage, 'error');
+    } finally {
+      setSuspendingUsers(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(user.id);
+        return newSet;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
