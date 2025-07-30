@@ -28,15 +28,26 @@ db.prepare(`
 try {
   // Check if images column exists
   const tableInfo = db.prepare("PRAGMA table_info(loops)").all();
+  console.log('Current loops table columns:', tableInfo.map(col => col.name));
   const hasImagesColumn = tableInfo.some(column => column.name === 'images');
 
   if (!hasImagesColumn) {
     console.log('Adding images column to loops table...');
     db.prepare('ALTER TABLE loops ADD COLUMN images TEXT').run();
     console.log('Images column added successfully');
+  } else {
+    console.log('Images column already exists in loops table');
   }
 } catch (error) {
   console.error('Error during migration:', error);
+  // If migration fails, try again
+  try {
+    console.log('Attempting to add images column with ALTER TABLE...');
+    db.prepare('ALTER TABLE loops ADD COLUMN images TEXT').run();
+    console.log('Images column added on retry');
+  } catch (retryError) {
+    console.error('Retry failed:', retryError);
+  }
 }
 
 module.exports = {
