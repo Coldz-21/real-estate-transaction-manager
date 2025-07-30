@@ -29,7 +29,7 @@ const Sidebar = ({ user, onLogout }) => {
           Nexus Realty NC
         </h1>
         <p className="text-sm text-gray-600 mt-1">
-          Transaction Manager
+          Loop Manager
         </p>
       </div>
 
