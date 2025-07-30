@@ -126,6 +126,105 @@ const adminController = {
     }
   },
 
+  // User Suspension Management
+  suspendUser: async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+
+      // Get target user
+      const targetUser = userModel.findById(userId);
+      if (!targetUser) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found'
+        });
+      }
+
+      // Can't suspend another admin
+      if (targetUser.role === 'admin') {
+        return res.status(403).json({
+          success: false,
+          error: 'Cannot suspend another administrator'
+        });
+      }
+
+      // Can't suspend yourself
+      if (parseInt(userId) === req.user.id) {
+        return res.status(403).json({
+          success: false,
+          error: 'Cannot suspend your own account'
+        });
+      }
+
+      // Suspend the user
+      const result = userModel.suspendUser(userId);
+
+      if (result.changes === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Failed to suspend user'
+        });
+      }
+
+      // Log suspension activity
+      ActivityLogger.log(
+        req.user.id,
+        'USER_SUSPENDED',
+        `Suspended user: ${targetUser.name} (${targetUser.email})`,
+        req,
+        { targetUserId: parseInt(userId), targetUserName: targetUser.name, targetUserEmail: targetUser.email }
+      );
+
+      res.json({
+        success: true,
+        message: `User ${targetUser.name} has been suspended`
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  unsuspendUser: async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+
+      // Get target user
+      const targetUser = userModel.findById(userId);
+      if (!targetUser) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found'
+        });
+      }
+
+      // Unsuspend the user
+      const result = userModel.unsuspendUser(userId);
+
+      if (result.changes === 0) {
+        return res.status(404).json({
+          success: false,
+          error: 'Failed to unsuspend user'
+        });
+      }
+
+      // Log unsuspension activity
+      ActivityLogger.log(
+        req.user.id,
+        'USER_UNSUSPENDED',
+        `Unsuspended user: ${targetUser.name} (${targetUser.email})`,
+        req,
+        { targetUserId: parseInt(userId), targetUserName: targetUser.name, targetUserEmail: targetUser.email }
+      );
+
+      res.json({
+        success: true,
+        message: `User ${targetUser.name} has been unsuspended`
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   // Export Functions
   exportActivityLogs: (req, res, next) => {
     try {
