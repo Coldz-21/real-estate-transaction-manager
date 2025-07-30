@@ -17,7 +17,29 @@ router.get('/:id', loopController.getLoopById);
 router.put('/:id', uploadImages, loopController.updateLoop);
 router.get('/:id/export/pdf', loopController.exportPDF);
 
-// Image routes
+// Image routes (for debugging)
+router.get('/test-images', (req, res) => {
+  const fs = require('fs');
+  const path = require('path');
+  const uploadsDir = path.join(__dirname, '..', 'uploads', 'loops');
+
+  try {
+    const files = fs.readdirSync(uploadsDir);
+    res.json({
+      success: true,
+      files: files,
+      uploadsPath: uploadsDir,
+      staticRoute: '/api/loops/images/'
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      error: error.message,
+      uploadsPath: uploadsDir
+    });
+  }
+});
+
 router.delete('/:id/images/:filename', loopController.deleteLoopImage);
 
 // Admin only routes
