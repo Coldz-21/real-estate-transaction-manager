@@ -46,6 +46,8 @@ const loopController = {
         status: req.query.status,
         type: req.query.type,
         search: req.query.search,
+        sort: req.query.sort || 'created_at',
+        order: req.query.order || 'desc',
         limit: req.query.limit ? parseInt(req.query.limit) : null
       };
 

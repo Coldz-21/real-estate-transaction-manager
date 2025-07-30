@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { loopAPI, apiUtils } from '../services/api';
 import { dateUtils } from '../utils/dateUtils';
@@ -16,14 +16,10 @@ const Dashboard = ({ user, addNotification, isAdmin = false }) => {
   const [recentLoops, setRecentLoops] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      
+
       // Fetch stats
       const statsResponse = await loopAPI.getStats();
       if (statsResponse.data.success) {
@@ -48,7 +44,11 @@ const Dashboard = ({ user, addNotification, isAdmin = false }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [addNotification]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const handleExportCSV = async () => {
     try {

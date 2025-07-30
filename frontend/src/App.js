@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Login from './components/Login';
@@ -14,6 +14,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
+  const notificationCounter = useRef(0);
 
   useEffect(() => {
     // Check authentication status on app load
@@ -42,7 +43,8 @@ const App = () => {
   };
 
   const addNotification = (message, type = 'info') => {
-    const id = Date.now();
+    notificationCounter.current += 1;
+    const id = `notification-${Date.now()}-${notificationCounter.current}`;
     const notification = { id, message, type };
     setNotifications(prev => [...prev, notification]);
 
@@ -65,117 +67,112 @@ const App = () => {
     );
   }
 
+  const NotificationContainer = () => (
+    <div className="fixed top-4 right-4 z-50 space-y-2">
+      {notifications.map(notification => (
+        <NotificationAlert
+          key={notification.id}
+          message={notification.message}
+          type={notification.type}
+          onClose={() => removeNotification(notification.id)}
+        />
+      ))}
+    </div>
+  );
+
   if (!isAuthenticated) {
     return (
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route 
-              path="/login" 
-              element={
-                <Login 
-                  onLogin={handleLogin} 
-                  addNotification={addNotification} 
-                />
-              } 
-            />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-          
-          {/* Notifications */}
-          <div className="fixed top-4 right-4 z-50 space-y-2">
-            {notifications.map(notification => (
-              <NotificationAlert
-                key={notification.id}
-                message={notification.message}
-                type={notification.type}
-                onClose={() => removeNotification(notification.id)}
+      <>
+        <Router>
+          <div className="min-h-screen bg-gray-50">
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  <Login
+                    onLogin={handleLogin}
+                    addNotification={addNotification}
+                  />
+                }
               />
-            ))}
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
           </div>
-        </div>
-      </Router>
+        </Router>
+        <NotificationContainer />
+      </>
     );
   }
 
   return (
-    <Router>
-      <div className="app-container">
-        <Sidebar user={user} onLogout={handleLogout} />
-        
-        <div className="content">
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                <Navigate 
-                  to={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/agent'} 
-                  replace 
-                />
-              } 
-            />
-            
-            <Route 
-              path="/dashboard/admin" 
-              element={
-                user?.role === 'admin' ? (
-                  <AdminDashboard 
-                    user={user} 
-                    addNotification={addNotification} 
-                  />
-                ) : (
-                  <Navigate to="/dashboard/agent" replace />
-                )
-              } 
-            />
-            
-            <Route 
-              path="/dashboard/agent" 
-              element={
-                <AgentDashboard 
-                  user={user} 
-                  addNotification={addNotification} 
-                />
-              } 
-            />
-            
-            <Route 
-              path="/loops/new" 
-              element={
-                <CreateLoop 
-                  user={user} 
-                  addNotification={addNotification} 
-                />
-              } 
-            />
-            
-            <Route 
-              path="/loops/edit/:id" 
-              element={
-                <EditLoop 
-                  user={user} 
-                  addNotification={addNotification} 
-                />
-              } 
-            />
-            
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+    <>
+      <Router>
+        <div className="app-container">
+          <Sidebar user={user} onLogout={handleLogout} />
 
-        {/* Notifications */}
-        <div className="fixed top-4 right-4 z-50 space-y-2">
-          {notifications.map(notification => (
-            <NotificationAlert
-              key={notification.id}
-              message={notification.message}
-              type={notification.type}
-              onClose={() => removeNotification(notification.id)}
-            />
-          ))}
+          <div className="content">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <Navigate
+                    to={user?.role === 'admin' ? '/dashboard/admin' : '/dashboard/agent'}
+                    replace
+                  />
+                }
+              />
+
+              <Route
+                path="/dashboard/admin"
+                element={
+                  user?.role === 'admin' ? (
+                    <AdminDashboard
+                      user={user}
+                      addNotification={addNotification}
+                    />
+                  ) : (
+                    <Navigate to="/dashboard/agent" replace />
+                  )
+                }
+              />
+
+              <Route
+                path="/dashboard/agent"
+                element={
+                  <AgentDashboard
+                    user={user}
+                    addNotification={addNotification}
+                  />
+                }
+              />
+
+              <Route
+                path="/loops/new"
+                element={
+                  <CreateLoop
+                    user={user}
+                    addNotification={addNotification}
+                  />
+                }
+              />
+
+              <Route
+                path="/loops/edit/:id"
+                element={
+                  <EditLoop
+                    user={user}
+                    addNotification={addNotification}
+                  />
+                }
+              />
+
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
         </div>
-      </div>
-    </Router>
+      </Router>
+      <NotificationContainer />
+    </>
   );
 };
 

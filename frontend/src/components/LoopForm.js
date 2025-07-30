@@ -75,7 +75,7 @@ const LoopForm = ({ initialData = {}, onSubmit, loading = false, isEdit = false 
     }
 
     // Phone validation (basic)
-    if (formData.client_phone && !/^[\d\s\-\(\)\+]+$/.test(formData.client_phone)) {
+    if (formData.client_phone && !/^[\d\s\-()+"]+$/.test(formData.client_phone)) {
       newErrors.client_phone = 'Please enter a valid phone number';
     }
 

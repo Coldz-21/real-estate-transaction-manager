@@ -13,23 +13,46 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
   const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
-    fetchLoops();
-  }, [filters, searchTerm, statusFilter, typeFilter, sortBy, sortOrder]);
+    const fetchLoops = async () => {
+      try {
+        setLoading(true);
+        const params = {
+          search: searchTerm || '',
+          status: statusFilter || '',
+          type: typeFilter || '',
+          sort: sortBy || 'created_at',
+          order: sortOrder || 'desc'
+        };
 
-  const fetchLoops = async () => {
+        const response = await loopAPI.getLoops(params);
+
+        if (response.data.success) {
+          setLoops(response.data.loops);
+        }
+      } catch (error) {
+        const errorMessage = apiUtils.getErrorMessage(error);
+        addNotification(errorMessage, 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLoops();
+  }, [searchTerm, statusFilter, typeFilter, sortBy, sortOrder, addNotification]);
+
+  const refreshLoops = async () => {
     try {
       setLoading(true);
       const params = {
-        ...filters,
-        search: searchTerm,
-        status: statusFilter,
-        type: typeFilter,
-        sort: sortBy,
-        order: sortOrder
+        search: searchTerm || '',
+        status: statusFilter || '',
+        type: typeFilter || '',
+        sort: sortBy || 'created_at',
+        order: sortOrder || 'desc'
       };
 
       const response = await loopAPI.getLoops(params);
-      
+
       if (response.data.success) {
         setLoops(response.data.loops);
       }
@@ -51,7 +74,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
       
       if (response.data.success) {
         addNotification('Loop deleted successfully', 'success');
-        fetchLoops(); // Refresh the list
+        refreshLoops(); // Refresh the list
       }
     } catch (error) {
       const errorMessage = apiUtils.getErrorMessage(error);
@@ -69,7 +92,7 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
       
       if (response.data.success) {
         addNotification('Loop archived successfully', 'success');
-        fetchLoops(); // Refresh the list
+        refreshLoops(); // Refresh the list
       }
     } catch (error) {
       const errorMessage = apiUtils.getErrorMessage(error);
@@ -108,7 +131,6 @@ const LoopList = ({ user, addNotification, filters = {} }) => {
       return null;
     }
 
-    const days = dateUtils.getDaysUntil(endDate);
     const countdownText = dateUtils.getCountdownText(endDate);
     const dateStatus = dateUtils.getDateStatus(endDate);
 
