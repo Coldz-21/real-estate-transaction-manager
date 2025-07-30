@@ -186,7 +186,17 @@ const pdfGenerator = {
                 try {
                   // Read image as base64
                   const imageBuffer = fs.readFileSync(imagePath);
-                  const base64 = `data:${image.mimetype || 'image/jpeg'};base64,${imageBuffer.toString('base64')}`;
+
+                  // Detect image format from file extension or mimetype
+                  let imageFormat = 'JPEG';
+                  const ext = path.extname(image.filename).toLowerCase();
+                  if (ext === '.png' || image.mimetype === 'image/png') {
+                    imageFormat = 'PNG';
+                  } else if (ext === '.gif' || image.mimetype === 'image/gif') {
+                    imageFormat = 'GIF';
+                  }
+
+                  const base64 = imageBuffer.toString('base64');
 
                   // Calculate position
                   const col = i % imagesPerRow;
@@ -199,14 +209,14 @@ const pdfGenerator = {
                     doc.addPage();
                     yPosition = 20;
                     const newY = yPosition + (row * (imageHeight + 15));
-                    doc.addImage(base64, 'JPEG', x, newY, imageWidth, imageHeight);
+                    doc.addImage(base64, imageFormat, x, newY, imageWidth, imageHeight);
 
                     // Add image caption
                     doc.setFontSize(8);
                     doc.setTextColor(...lightGray);
                     doc.text(image.originalName || `Image ${i + 1}`, x, newY + imageHeight + 8);
                   } else {
-                    doc.addImage(base64, 'JPEG', x, y, imageWidth, imageHeight);
+                    doc.addImage(base64, imageFormat, x, y, imageWidth, imageHeight);
 
                     // Add image caption
                     doc.setFontSize(8);
