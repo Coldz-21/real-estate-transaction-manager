@@ -107,9 +107,13 @@ const loopController = {
       }
 
       // Parse images for frontend
+      const imageList = imageUtils.parseImages(loop.images);
+      if (imageList.length > 0) {
+        console.log(`Single loop ${loop.id} has ${imageList.length} images:`, imageList.map(img => img.filename));
+      }
       const loopWithImages = {
         ...loop,
-        imageList: imageUtils.parseImages(loop.images)
+        imageList
       };
 
       res.json({
