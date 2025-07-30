@@ -9,10 +9,33 @@ db.prepare(`
     email TEXT UNIQUE NOT NULL,
     password TEXT,
     role TEXT DEFAULT 'agent',
+    notify_on_new_loops BOOLEAN DEFAULT 1,
+    notify_on_updated_loops BOOLEAN DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `).run();
+
+// Migration: Add notification preference columns if they don't exist
+try {
+  const tableInfo = db.prepare("PRAGMA table_info(users)").all();
+  const hasNotifyNewLoops = tableInfo.some(column => column.name === 'notify_on_new_loops');
+  const hasNotifyUpdatedLoops = tableInfo.some(column => column.name === 'notify_on_updated_loops');
+
+  if (!hasNotifyNewLoops) {
+    console.log('Adding notify_on_new_loops column to users table...');
+    db.prepare('ALTER TABLE users ADD COLUMN notify_on_new_loops BOOLEAN DEFAULT 1').run();
+    console.log('notify_on_new_loops column added successfully');
+  }
+
+  if (!hasNotifyUpdatedLoops) {
+    console.log('Adding notify_on_updated_loops column to users table...');
+    db.prepare('ALTER TABLE users ADD COLUMN notify_on_updated_loops BOOLEAN DEFAULT 1').run();
+    console.log('notify_on_updated_loops column added successfully');
+  }
+} catch (error) {
+  console.error('Error during user notification migration:', error);
+}
 
 // Insert default users if table is empty
 const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get();
