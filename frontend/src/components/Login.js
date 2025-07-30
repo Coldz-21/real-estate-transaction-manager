@@ -183,7 +183,10 @@ const Login = ({ onLogin, addNotification }) => {
 
         <div className="text-center">
           <p className="text-xs text-gray-500">
-            Built like dotloop - Real Estate Transaction Management
+            Build loops, build relationships - Nexus Realty NC Loop Management
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            © 2024 Nexus Realty NC. All rights reserved.
           </p>
         </div>
       </div>
