@@ -317,7 +317,7 @@ const ActivityLogs = ({ addNotification }) => {
 
   useEffect(() => {
     fetchLogs();
-  }, [filters]);
+  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchLogs = async () => {
     try {
