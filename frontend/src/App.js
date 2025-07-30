@@ -167,6 +167,20 @@ const App = () => {
                 }
               />
 
+              <Route
+                path="/settings"
+                element={
+                  user?.role === 'admin' ? (
+                    <AdminSettings
+                      user={user}
+                      addNotification={addNotification}
+                    />
+                  ) : (
+                    <Navigate to="/dashboard/agent" replace />
+                  )
+                }
+              />
+
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
