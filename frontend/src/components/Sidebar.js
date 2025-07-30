@@ -18,7 +18,13 @@ const Sidebar = ({ user, onLogout }) => {
       name: 'Create Loop',
       path: '/loops/new',
       icon: '➕'
-    }
+    },
+    // Admin-only settings
+    ...(user?.role === 'admin' ? [{
+      name: 'Settings',
+      path: '/settings',
+      icon: '⚙️'
+    }] : [])
   ];
 
   return (
