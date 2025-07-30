@@ -93,5 +93,19 @@ module.exports = {
       SELECT id, name, email FROM users
       WHERE role = 'admin' AND ${column} = 1
     `).all();
+  },
+
+  getAllUsers: () => {
+    return db.prepare('SELECT * FROM users ORDER BY created_at DESC').all();
+  },
+
+  updatePassword: (id, hashedPassword) => {
+    const stmt = db.prepare(`
+      UPDATE users SET
+        password = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `);
+    return stmt.run(hashedPassword, id);
   }
 };
